@@ -11,9 +11,7 @@
     { "type": "wokwi-led", "id": "led-r", "top": 300, "left": 400, "attrs": { "color": "red" } },
     { "type": "wokwi-resistor", "id": "r-b", "top": 180, "left": 480, "attrs": { "value": "220" } },
     { "type": "wokwi-resistor", "id": "r-g", "top": 240, "left": 480, "attrs": { "value": "220" } },
-    { "type": "wokwi-resistor", "id": "r-r", "top": 300, "left": 480, "attrs": { "value": "220" } },
-    { "type": "wokwi-pushbutton", "id": "btn", "top": -200, "left": 550, "attrs": { "color": "green", "key": " ", "bounce": "0", "label": "ACESSO" } },
-    { "type": "wokwi-buzzer", "id": "buz", "top": -80, "left": 550, "attrs": { "volume": "0.5" } }
+    { "type": "wokwi-resistor", "id": "r-r", "top": 300, "left": 480, "attrs": { "value": "220" } }
   ],
   "connections": [
     ["pot:VCC", "uno:5V", "red"],
@@ -35,12 +33,6 @@
 
     ["uno:7", "led-r:A", "red"],
     ["led-r:C", "r-r:1", "red"],
-    ["r-r:2", "uno:GND", "black"],
-
-    ["btn:1.l", "uno:2", "purple"],
-    ["btn:2.l", "uno:GND", "black"],
-
-    ["buz:2", "uno:3", "brown"],
-    ["buz:1", "uno:GND", "black"]
+    ["r-r:2", "uno:GND", "black"]
   ]
 }

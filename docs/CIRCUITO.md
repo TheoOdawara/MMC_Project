@@ -9,14 +9,11 @@
 │  5V ──────────┼──────→ ADS1115 VDD                          │
 │               │       → ULN2003 (+) (pino + do driver)     │
 │               │       → LM35 VCC (pino 1)                  │
-│               │       → Buzzer (+) (se for piezo ativo)    │
 ├───────────────┼─────────────────────────────────────────────┤
 │  GND ─────────┼──────→ ADS1115 GND                         │
 │               │       → ULN2003 (-) (pino - do driver)     │
 │               │       → LM35 GND (pino 3)                  │
 │               │       → LEDs (catodo / perna curta)         │
-│               │       → Botão (outro lado)                 │
-│               │       → Buzzer (-)                         │
 ├───────────────┼─────────────────────────────────────────────┤
 │  A4 (SDA) ────┼──────→ ADS1115 SDA                         │
 │  A5 (SCL) ────┼──────→ ADS1115 SCL                         │
@@ -31,11 +28,6 @@
 │   5 (PD5) ────┼──────→ [R 220Ω] ───→ LED Azul (anodo +)   │
 │   6 (PD6) ────┼──────→ [R 220Ω] ───→ LED Verde (anodo +)  │
 │   7 (PD7) ────┼──────→ [R 220Ω] ───→ LED Vermelho (anodo +)│
-├───────────────┼─────────────────────────────────────────────┤
-│   2 (PD2) ────┼──────→ Botão ───→ GND                      │
-│               │        (pull-up interno ativado no código)  │
-├───────────────┼─────────────────────────────────────────────┤
-│   3 (PD3) ────┼──────→ Buzzer (+)                           │
 └───────────────┴─────────────────────────────────────────────┘
 ```
 
@@ -52,8 +44,6 @@
 | LED vermelho | 1 |
 | Resistor 220Ω | 3 |
 | Resistor 4,7kΩ (pull-up I2C) | 2 (se o módulo ADS1115 não tiver) |
-| Botão push-button (NA) | 1 |
-| Buzzer (ativo ou piezo) | 1 |
 | Protoboard | 1 |
 | Jumpers macho-macho | ~20 |
 
@@ -123,26 +113,6 @@ Pino Arduino → Resistor 220Ω → Anodo (+ / perna longa) do LED
 | Verde | 6 | Acesso liberado |
 | Vermelho | 7 | Acesso negado |
 
-### 5. Botão
-
-O código ativa o pull-up interno do ATmega328P, então **não precisa de resistor externo**.
-
-```
-Arduino pino 2 ──── Botão ──── GND
-```
-
-Quando pressionado, o pino 2 é conectado ao GND (LOW).
-
-### 6. Buzzer
-
-```
-Arduino pino 3 ──── Buzzer (+) ──── Buzzer (-) ──── GND
-```
-
-- Buzzer **ativo**: gera som sozinho com nível HIGH
-- Buzzer **passivo**: o delay de 150–200ms no código produz uma frequência audível
-- A perna mais longa geralmente é o positivo
-
 ## Checklist antes de ligar
 
 1. ✅ Todos os **GNDs** conectados ao mesmo trilho negativo
@@ -150,10 +120,9 @@ Arduino pino 3 ──── Buzzer (+) ──── Buzzer (-) ──── GND
 3. ✅ **ADS1115** — VDD → 5V, GND → GND, ADDR → GND
 4. ✅ **ULN2003** — `+` → 5V, `-` → GND
 5. ✅ **LM35** — pino 1 (VCC, 5V), pino 2 (OUT → ADS1115 A0), pino 3 (GND)
-6. ✅ **Botão** — conectado ao pino 2 e ao GND (sem resistor externo)
-7. ✅ **Pinos I2C** — SDA em A4, SCL em A5
-8. ✅ **Resistores de pull-up I2C** — presentes (no módulo ou externos de 4,7kΩ)
-9. ✅ Protoboard bem pressionada, jumpers firmes
+6. ✅ **Pinos I2C** — SDA em A4, SCL em A5
+7. ✅ **Resistores de pull-up I2C** — presentes (no módulo ou externos de 4,7kΩ)
+8. ✅ Protoboard bem pressionada, jumpers firmes
 
 ## Pinagem (resumo)
 
@@ -169,5 +138,3 @@ Arduino pino 3 ──── Buzzer (+) ──── Buzzer (-) ──── GND
 | LED Verde | 6 |
 | LED Vermelho | 7 |
 | LED Azul | 5 |
-| Botão (INPUT_PULLUP) | 2 |
-| Buzzer | 3 |

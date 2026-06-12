@@ -1,8 +1,19 @@
+#include <Wire.h>
+
 int estado = 0;
 int passo_atual = 0;
 int temperatura_adc = 0;
 
-#define LIMITE 77
+#define ADS1115_ADDR 0x48
+#define ADS1115_REG_CONVERSION 0x00
+#define ADS1115_REG_CONFIG 0x01
+
+// AIN0 single-ended, single-shot, gain +-2.048V, 128 SPS, comparator off.
+#define ADS1115_CONFIG_HI 0xC5
+#define ADS1115_CONFIG_LO 0x83
+
+// LM35 = 10 mV/C. 6016 counts on the ADS1115 (16-bit, +-2.048V) ~= 0.376 V ~= 37.6 C.
+#define LIMITE 6016
 
 void motor_passo(int p) {
   PORTB &= ~((1 << PB0) | (1 << PB1) | (1 << PB2) | (1 << PB3));
@@ -63,27 +74,37 @@ void motor_girar(int passos) {
 }
 
 void ler_adc() {
-  ADCSRA |= (1 << ADSC);
-  while (ADCSRA & (1 << ADSC));
-  temperatura_adc = ADC;
+  Wire.beginTransmission(ADS1115_ADDR);
+  Wire.write(ADS1115_REG_CONFIG);
+  Wire.write(ADS1115_CONFIG_HI);
+  Wire.write(ADS1115_CONFIG_LO);
+  Wire.endTransmission();
+
+  delay(8);
+
+  Wire.beginTransmission(ADS1115_ADDR);
+  Wire.write(ADS1115_REG_CONVERSION);
+  Wire.endTransmission();
+
+  Wire.requestFrom(ADS1115_ADDR, 2);
+  uint8_t hi = Wire.read();
+  uint8_t lo = Wire.read();
+
+  uint16_t raw = ((uint16_t)hi << 8) | (uint16_t)lo;
+  temperatura_adc = (int16_t)raw;
 }
 
 void setup() {
   DDRD |= (1 << PD5);
   DDRD |= (1 << PD6);
   DDRD |= (1 << PD7);
-  DDRD |= (1 << PD3);
-
-  DDRD &= ~(1 << PD2);
-  PORTD |= (1 << PD2);
 
   DDRB |= (1 << PB0);
   DDRB |= (1 << PB1);
   DDRB |= (1 << PB2);
   DDRB |= (1 << PB3);
 
-  ADMUX = (1 << REFS0) | 0;
-  ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+  Wire.begin();
 
   motor_passo(0);
 
@@ -92,13 +113,8 @@ void setup() {
 
 void loop() {
   if (estado == 0) {
-    if ((PIND & (1 << PD2)) == 0) {
-      delay(50);
-      if ((PIND & (1 << PD2)) == 0) {
-        PORTD &= ~(1 << PD5);
-        estado = 1;
-      }
-    }
+    PORTD &= ~(1 << PD5);
+    estado = 1;
   }
   else if (estado == 1) {
     ler_adc();
@@ -113,11 +129,6 @@ void loop() {
   else if (estado == 2) {
     PORTD |= (1 << PD6);
 
-    PORTD |= (1 << PD3);
-    delay(200);
-    PORTD &= ~(1 << PD3);
-    delay(50);
-
     motor_girar(200);
 
     delay(3000);
@@ -130,14 +141,6 @@ void loop() {
   }
   else if (estado == 3) {
     PORTD |= (1 << PD7);
-
-    int i;
-    for (i = 0; i < 3; i++) {
-      PORTD |= (1 << PD3);
-      delay(150);
-      PORTD &= ~(1 << PD3);
-      delay(150);
-    }
 
     delay(3000);
 
